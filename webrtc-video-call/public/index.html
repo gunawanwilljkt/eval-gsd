@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Talk — 1:1 video call</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <!-- id="app" is the EC-2 marker (Phase 01 still gates on it) — keep it. -->
+  <main id="app">
+    <header class="topbar">
+      <h1>Talk</h1>
+      <form id="joinForm" class="joinbar" autocomplete="off" onsubmit="return false">
+        <input id="room" type="text" placeholder="room name (share this)" aria-label="Room name" />
+        <button id="join" type="button">Join</button>
+      </form>
+    </header>
+
+    <p id="status" class="status" role="status" aria-live="polite">Enter a room name and click Join.</p>
+
+    <section class="stage">
+      <figure class="tile">
+        <video id="localVideo" autoplay playsinline muted></video>
+        <figcaption>You</figcaption>
+      </figure>
+      <figure class="tile">
+        <video id="remoteVideo" autoplay playsinline></video>
+        <figcaption>Peer</figcaption>
+      </figure>
+    </section>
+
+    <div id="controls" class="controls" hidden>
+      <button id="mute" type="button">Mute mic</button>
+      <button id="camera" type="button">Camera off</button>
+      <button id="hangup" type="button" class="danger">Hang up</button>
+    </div>
+  </main>
+
+  <script type="module" src="/call.js"></script>
+</body>
+</html>

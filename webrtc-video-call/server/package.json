@@ -1,0 +1,21 @@
+{
+  "name": "webrtc-signaling",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "eval": "node test/eval-phase1.mjs",
+    "eval2": "node test/eval-phase2.mjs",
+    "eval3": "node test/eval-phase3.mjs",
+    "capture": "node test/capture-call.mjs",
+    "pretest": "node test/eval-phase2.mjs EC-10",
+    "test": "node test/eval-phase1.mjs && node test/eval-phase2.mjs --except EC-10 && node test/eval-phase3.mjs --except EC-17"
+  },
+  "dependencies": {
+    "ws": "^8.21.0"
+  },
+  "devDependencies": {
+    "playwright": "^1.60.0"
+  }
+}

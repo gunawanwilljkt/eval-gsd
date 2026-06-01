@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GSD — Ship real software with Claude Code, phase by phase</title>
+<meta name="description" content="GSD (Get Shit Done) is a spec-driven framework for Claude Code: locked eval contracts, orchestrated agents, and a git-verified work ledger — from a raw idea to a merged PR.">
+<style>
+:root{
+  --bg:#0A0C12; --text:#EAEEF7; --muted:#9AA4BA; --faint:#69728A;
+  --border:#242C3E; --surface:rgba(255,255,255,.025); --surface2:rgba(255,255,255,.05);
+  --accent:#8B7BFF; --accent2:#2DD4BF; --soft:rgba(139,123,255,.14); --softb:rgba(139,123,255,.32);
+  --grad:linear-gradient(120deg,#8B7BFF 0%,#5FE0C8 100%);
+  --code-bg:#0C1018; --code-border:#202838; --good:#46D98C; --warn:#F5C451;
+  --shadow:0 18px 50px rgba(0,0,0,.45);
+  --max:1120px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  background:
+    radial-gradient(1100px 600px at 8% -8%, rgba(139,123,255,.16), transparent 55%),
+    radial-gradient(1000px 700px at 108% 4%, rgba(45,212,191,.10), transparent 50%),
+    var(--bg);
+  background-attachment:fixed; color:var(--text);
+  -webkit-font-smoothing:antialiased; line-height:1.5; overflow-x:hidden;
+}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:var(--max);margin:0 auto;padding:0 28px}
+.acc{color:var(--accent)} .g{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.mono{font-family:"SF Mono","JetBrains Mono",ui-monospace,Menlo,Consolas,monospace}
+
+/* nav */
+header{position:sticky;top:0;z-index:50;backdrop-filter:blur(12px);
+  background:rgba(10,12,18,.72);border-bottom:1px solid var(--border)}
+nav{display:flex;align-items:center;justify-content:space-between;height:64px;max-width:var(--max);margin:0 auto;padding:0 28px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:.04em;font-size:18px}
+.brand .mark{width:30px;height:30px;border-radius:8px;background:var(--grad);display:grid;place-items:center;color:#0A0C12;font-weight:900;font-size:14px}
+.navlinks{display:flex;gap:30px;font-size:14.5px;color:var(--muted)}
+.navlinks a:hover{color:var(--text)}
+.btn{display:inline-flex;align-items:center;gap:8px;font-weight:650;font-size:14.5px;padding:10px 18px;border-radius:10px;border:1px solid transparent;transition:.15s}
+.btn.primary{background:var(--grad);color:#0A0C12}
+.btn.primary:hover{filter:brightness(1.07);transform:translateY(-1px)}
+.btn.ghost{border-color:var(--border);color:var(--text);background:var(--surface)}
+.btn.ghost:hover{border-color:var(--softb);background:var(--soft)}
+@media(max-width:760px){.navlinks{display:none}}
+
+/* hero */
+.hero{padding-top:84px;padding-bottom:64px}
+.eyebrow{display:inline-flex;align-items:center;gap:9px;font-size:13px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;
+  color:#CBC6FF;border:1px solid var(--softb);background:var(--soft);padding:7px 15px;border-radius:999px}
+.eyebrow .dot{width:7px;height:7px;border-radius:50%;background:var(--accent)}
+h1{font-size:clamp(38px,6vw,68px);line-height:1.04;font-weight:820;letter-spacing:-.03em;margin-top:24px;max-width:14ch}
+.sub{font-size:clamp(17px,2.2vw,21px);color:var(--muted);margin-top:22px;max-width:62ch;line-height:1.55}
+.cta{display:flex;gap:14px;flex-wrap:wrap;margin-top:34px}
+.stat-row{display:flex;gap:28px;flex-wrap:wrap;margin-top:46px}
+.stat-row .s{display:flex;flex-direction:column}
+.stat-row .s b{font-size:26px;font-weight:800;letter-spacing:-.02em}
+.stat-row .s span{font-size:13.5px;color:var(--faint);margin-top:2px}
+.stat-row .sep{width:1px;background:var(--border)}
+
+.hero-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:48px;align-items:center}
+@media(max-width:900px){.hero-grid{grid-template-columns:1fr;gap:36px}}
+
+/* terminal card */
+.term{background:var(--code-bg);border:1px solid var(--code-border);border-radius:14px;box-shadow:var(--shadow);overflow:hidden}
+.term .bar{display:flex;align-items:center;gap:7px;padding:11px 15px;border-bottom:1px solid var(--code-border)}
+.term .bar i{width:11px;height:11px;border-radius:50%;background:#2b3445;display:inline-block}
+.term .bar span{margin-left:8px;font-size:12px;color:var(--faint)}
+.term pre{padding:18px 18px 22px;font-family:"SF Mono","JetBrains Mono",ui-monospace,Menlo,monospace;font-size:13.5px;line-height:1.75;color:#D7E0F0;white-space:pre-wrap}
+.term .c{color:#5F6B85} .term .p{color:var(--accent2)} .term .k{color:#9FB0FF}
+
+/* sections */
+section.block{padding:66px 0;border-top:1px solid var(--border)}
+.kick{font-size:13px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+h2{font-size:clamp(28px,4vw,40px);font-weight:760;letter-spacing:-.02em;margin-top:12px;max-width:20ch}
+.lead{font-size:18px;color:var(--muted);margin-top:14px;max-width:64ch;line-height:1.6}
+
+/* two-col problem/answer */
+.duo{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:38px}
+@media(max-width:760px){.duo{grid-template-columns:1fr}}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:26px}
+.panel h3{font-size:18px;font-weight:700;margin-bottom:16px}
+.panel.bad h3{color:#FF8C8C} .panel.good h3{color:var(--accent2)}
+.li{display:flex;gap:12px;align-items:flex-start;padding:9px 0;font-size:15.5px;color:var(--text);line-height:1.45}
+.li .m{flex:0 0 auto;margin-top:7px;width:8px;height:8px;border-radius:3px;background:var(--grad)}
+.panel.bad .li .m{background:#FF8C8C;opacity:.7}
+.li .d{color:var(--muted)}
+
+/* lifecycle flow */
+.flow{display:grid;grid-template-columns:repeat(6,1fr);gap:0;margin-top:40px}
+@media(max-width:900px){.flow{grid-template-columns:repeat(3,1fr);gap:14px}}
+@media(max-width:520px){.flow{grid-template-columns:repeat(2,1fr)}}
+.step{position:relative;padding:20px 16px;background:var(--surface);border:1px solid var(--border);border-radius:14px;margin-right:18px}
+@media(max-width:900px){.step{margin-right:0}}
+.step:last-child{margin-right:0}
+.step .n{font-size:11px;font-weight:800;letter-spacing:.12em;color:var(--accent);text-transform:uppercase}
+.step .t{font-size:16px;font-weight:700;margin-top:7px}
+.step .dd{font-size:13px;color:var(--muted);margin-top:6px;line-height:1.4}
+.step .arr{position:absolute;right:-15px;top:50%;transform:translateY(-50%);color:var(--accent2);font-size:18px;font-weight:700;z-index:2}
+@media(max-width:900px){.step .arr{display:none}}
+
+/* feature grid */
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:40px}
+@media(max-width:860px){.grid3{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:560px){.grid3{grid-template-columns:1fr}}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px;transition:.18s}
+.card:hover{border-color:var(--softb);transform:translateY(-3px);box-shadow:var(--shadow)}
+.card .ico{width:42px;height:42px;border-radius:11px;background:var(--soft);border:1px solid var(--softb);display:grid;place-items:center;font-size:20px;margin-bottom:15px}
+.card h3{font-size:18px;font-weight:700;letter-spacing:-.01em}
+.card p{font-size:14.5px;color:var(--muted);margin-top:8px;line-height:1.5}
+
+/* examples */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:40px}
+@media(max-width:760px){.grid2{grid-template-columns:1fr}}
+.ex{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:30px;position:relative;overflow:hidden}
+.ex::before{content:"";position:absolute;inset:0 0 auto 0;height:3px;background:var(--grad)}
+.ex .tag{font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--accent2)}
+.ex h3{font-size:23px;font-weight:760;margin-top:10px;letter-spacing:-.01em}
+.ex p{font-size:15px;color:var(--muted);margin-top:10px;line-height:1.55}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+.chip{font-size:12.5px;font-weight:600;padding:5px 11px;border-radius:999px;background:var(--soft);border:1px solid var(--softb);color:#CBC6FF}
+
+/* deck CTA */
+.decks{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:40px}
+@media(max-width:760px){.decks{grid-template-columns:1fr}}
+.deck{display:block;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px;transition:.18s}
+.deck:hover{border-color:var(--softb);transform:translateY(-3px);box-shadow:var(--shadow)}
+.deck .sw{height:74px;border-radius:10px;border:1px solid var(--border);margin-bottom:16px;display:grid;place-items:center;font-weight:800;letter-spacing:.05em;font-size:13px}
+.deck.dark .sw{background:#0A0C12;color:#EAEEF7}
+.deck.light .sw{background:#EEF1F8;color:#161B26}
+.deck.print .sw{background:#fff;color:#15181F;border-color:#c2c8d2}
+.deck h3{font-size:17px;font-weight:700}
+.deck p{font-size:13.5px;color:var(--muted);margin-top:6px;line-height:1.45}
+.deck .open{margin-top:14px;font-size:13.5px;font-weight:650;color:var(--accent)}
+.pdf-row{margin-top:22px;font-size:14.5px;color:var(--muted)}
+.pdf-row a{color:var(--accent);font-weight:650}
+
+footer{border-top:1px solid var(--border);padding:40px 0;color:var(--faint);font-size:13.5px}
+.foot{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;align-items:center}
+.foot .brand{font-size:15px}
+</style>
+</head>
+<body>
+
+<header>
+  <nav>
+    <a class="brand" href="#top"><span class="mark">G</span> GSD</a>
+    <div class="navlinks">
+      <a href="#how">How it works</a>
+      <a href="#caps">Capabilities</a>
+      <a href="#examples">Examples</a>
+      <a href="#deck">The deck</a>
+    </div>
+    <a class="btn primary" href="gsd-presentation-dark.html">View the deck →</a>
+  </nav>
+</header>
+
+<a id="top"></a>
+<section class="hero wrap">
+  <div class="hero-grid">
+    <div>
+      <span class="eyebrow"><span class="dot"></span>Get Shit Done · v1.2.0 + eval-first</span>
+      <h1>Ship real software with <span class="g">Claude Code</span>, phase by phase</h1>
+      <p class="sub">GSD is a spec-driven framework: every phase is a vertical slice that’s discussed,
+      planned, executed and verified by specialized agents — and it can’t pass until its
+      <span class="acc">pre-committed evals</span> go green. From a raw idea to a merged PR.</p>
+      <div class="cta">
+        <a class="btn primary" href="gsd-presentation-dark.html">View the deck →</a>
+        <a class="btn ghost" href="gsd-presentation-print.pdf">Get the PDF</a>
+      </div>
+      <div class="stat-row">
+        <div class="s"><b class="g">67</b><span>commands</span></div>
+        <div class="sep"></div>
+        <div class="s"><b class="g">~80%</b><span>proven by code gates</span></div>
+        <div class="sep"></div>
+        <div class="s"><b class="g">20+</b><span>specialized agents</span></div>
+      </div>
+    </div>
+    <div class="term">
+      <div class="bar"><i></i><i></i><i></i><span>terminal — zero to shipped</span></div>
+<pre><span class="c"># 1 · scope it: questions → reqs → roadmap</span>
+<span class="p">/gsd-new-project</span>
+
+<span class="c"># 2 · build the first slice, end to end</span>
+<span class="p">/gsd-discuss-phase</span> 1
+<span class="p">/gsd-plan-phase</span> 1
+<span class="p">/gsd-execute-phase</span> 1   <span class="c"># waves + gates</span>
+
+<span class="c"># 3 · or run the rest hands-free</span>
+<span class="p">/gsd-autonomous</span>          <span class="c"># escalates if stuck</span>
+
+<span class="c"># 4 · close it out</span>
+<span class="p">/gsd-ship</span> 1 <span class="k">--review</span></pre>
+    </div>
+  </div>
+</section>
+
+<!-- problem / answer -->
+<section class="block" id="why">
+  <div class="wrap">
+    <div class="kick">Why it exists</div>
+    <h2>AI writes code fast — and drifts fast</h2>
+    <p class="lead">Unstructured AI coding loses the plot: scope creeps, “looks right” passes for done,
+    context runs out. GSD wraps the speed in structure so what ships is what you meant.</p>
+    <div class="duo">
+      <div class="panel bad">
+        <h3>Unstructured AI coding</h3>
+        <div class="li"><span class="m"></span><span>Scope creeps mid-session; the goal quietly moves</span></div>
+        <div class="li"><span class="m"></span><span>“Looks right” passes for done — no objective proof</span></div>
+        <div class="li"><span class="m"></span><span>Context runs out and the thread loses the plot</span></div>
+        <div class="li"><span class="m"></span><span>No audit trail: why was this built this way?</span></div>
+      </div>
+      <div class="panel good">
+        <h3>GSD’s answer</h3>
+        <div class="li"><span class="m"></span><span>Phases lock scope; gray areas resolved up front</span></div>
+        <div class="li"><span class="m"></span><span>A <b>locked eval contract</b> proves done, deterministically</span></div>
+        <div class="li"><span class="m"></span><span>A <b>work ledger</b> survives resets — resume exactly where you stopped</span></div>
+        <div class="li"><span class="m"></span><span>Every decision &amp; gate is a durable artifact in <span class="mono">.planning/</span></span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- how it works -->
+<section class="block" id="how">
+  <div class="wrap">
+    <div class="kick">How it works</div>
+    <h2>One project, this loop per phase</h2>
+    <p class="lead">A handful of commands carry a whole project. Each phase runs the same gated loop;
+    autonomous mode chains them all and only stops for a blocked gate or a real decision.</p>
+    <div class="flow">
+      <div class="step"><div class="n">Init</div><div class="t">new-project</div><div class="dd">Questioning → requirements → roadmap</div><div class="arr">→</div></div>
+      <div class="step"><div class="n">Per phase</div><div class="t">discuss</div><div class="dd">Lock decisions in CONTEXT.md</div><div class="arr">→</div></div>
+      <div class="step"><div class="n">Per phase</div><div class="t">plan</div><div class="dd">Planner ↔ checker loop</div><div class="arr">→</div></div>
+      <div class="step"><div class="n">Per phase</div><div class="t">execute</div><div class="dd">Parallel waves, hard gates</div><div class="arr">→</div></div>
+      <div class="step"><div class="n">Per phase</div><div class="t">verify</div><div class="dd">Goal-backward + eval verdict</div><div class="arr">→</div></div>
+      <div class="step"><div class="n">Close</div><div class="t">ship</div><div class="dd">PR built from artifacts</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- capabilities -->
+<section class="block" id="caps">
+  <div class="wrap">
+    <div class="kick">Capabilities</div>
+    <h2>More than a checklist</h2>
+    <div class="grid3">
+      <div class="card"><div class="ico">✓</div><h3>Eval-first contracts</h3><p>Quality gates locked before code. ~80% proven by deterministic CLI gates; humans judge only what only they can.</p></div>
+      <div class="card"><div class="ico">✦</div><h3>Orchestrated agents</h3><p>20+ specialists — planner, executor, verifier, reviewers — run in dependency-ordered parallel waves.</p></div>
+      <div class="card"><div class="ico">◆</div><h3>Git-verified ledger</h3><p>Every task, evidence hash and escalation is tracked. A dropped context is a non-event — resume and continue.</p></div>
+      <div class="card"><div class="ico">⊞</div><h3>MVP &amp; SPIDR</h3><p>Vertical slices, walking skeletons, and story-splitting on the axis that fits — spike, paths, interfaces, data, rules.</p></div>
+      <div class="card"><div class="ico">▢</div><h3>Mobile &amp; full-stack</h3><p>Per-platform eval hooks make mobile ~80% gatable — types, tests, bundles, sim e2e — without faking device gates.</p></div>
+      <div class="card"><div class="ico">◈</div><h3>Quality gates</h3><p>Code review, STRIDE security audits, and 6-pillar UI review you can run on demand, any time.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- examples -->
+<section class="block" id="examples">
+  <div class="wrap">
+    <div class="kick">Walked end to end</div>
+    <h2>Two builds, file by file</h2>
+    <p class="lead">The deck doesn’t hand-wave. Both examples trace the real artifact chain —
+    CONTEXT → eval contract → plan gate → summary → verification → ship.</p>
+    <div class="grid2">
+      <div class="ex">
+        <div class="tag">Example 1 · SaaS</div>
+        <h3>TaskFlow</h3>
+        <p>A multi-tenant team task app. Phase 1 (Auth) is walked file by file: locked decisions,
+        an eval contract with Code/Judge/Human rows, a plan task with a real <span class="mono">curl</span>
+        hard gate, then a clean verification verdict and PR.</p>
+        <div class="chips"><span class="chip">Auth</span><span class="chip">Workspaces</span><span class="chip">Realtime board</span><span class="chip">Stripe billing</span></div>
+      </div>
+      <div class="ex">
+        <div class="tag">Example 2 · Payments</div>
+        <h3>PayLink</h3>
+        <p>A payment gateway across three surfaces — merchant mobile app, backend, admin dashboard.
+        Shows the SPIDR <em>Interfaces</em> split, real React Native eval hooks, a STRIDE pass on the
+        charge endpoint, an AI fraud-assist phase, and a cross-surface integration check.</p>
+        <div class="chips"><span class="chip">RN mobile app</span><span class="chip">Backend API</span><span class="chip">Admin dashboard</span><span class="chip">Idempotent webhooks</span><span class="chip">STRIDE</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- the deck -->
+<section class="block" id="deck">
+  <div class="wrap">
+    <div class="kick">The deck</div>
+    <h2>58 slides, three ways</h2>
+    <p class="lead">Same content, three palettes — present on screen in dark or light, or print the
+    ink-economical zero-fill version. Every slide is verified to fit its canvas with no overflow.</p>
+    <div class="decks">
+      <a class="deck dark" href="gsd-presentation-dark.html">
+        <div class="sw">DARK</div><h3>Dark theme</h3><p>For screens and projectors. Full color, accent rail, gradients.</p>
+        <div class="open">Open deck →</div>
+      </a>
+      <a class="deck light" href="gsd-presentation-light.html">
+        <div class="sw">LIGHT</div><h3>Light theme</h3><p>For bright rooms and lighter presentations.</p>
+        <div class="open">Open deck →</div>
+      </a>
+      <a class="deck print" href="gsd-presentation-print.html">
+        <div class="sw">PRINT</div><h3>Zero-fill print</h3><p>Pure white, borders and type only. Minimal ink, one slide per page.</p>
+        <div class="open">Open deck →</div>
+      </a>
+    </div>
+    <p class="pdf-row">Prefer a file? Grab the <a href="gsd-presentation-print.pdf">print PDF (58 pages)</a>
+    or read the <a href="README.md">README</a>. Decks are self-contained HTML — no server needed.</p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap foot">
+    <a class="brand" href="#top"><span class="mark">G</span> GSD</a>
+    <span>Get Shit Done · spec-driven development for Claude Code · from idea to merged PR, with proof at every gate.</span>
+  </div>
+</footer>
+
+</body>
+</html>
