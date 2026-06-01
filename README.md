@@ -10,20 +10,38 @@ eval layer only switches on when you opt in (author an eval contract / set a con
 
 ## Install
 
-GSD installs as Claude Code `/gsd-*` slash commands. You need
-[Node.js](https://nodejs.org) (for `npx`) and [Claude Code](https://claude.com/claude-code).
+GSD **is** the `.claude/` directory in this repo — the `/gsd-*` slash commands, the agents,
+the `get-shit-done/` runtime, and the hooks. Installing means cloning this repo and dropping
+`.claude/` into your project. No npm or package manager required. You need
+[git](https://git-scm.com), [Node.js](https://nodejs.org) (the runtime tools use it), and
+[Claude Code](https://claude.com/claude-code).
+
+**One line** — installs into the target project:
 
 ```bash
-# Into the current project (recommended) — adds the .claude/ commands here
-npx -y @opengsd/gsd-core@latest --claude --local
-
-# Or install once for every project on your machine
-npx -y @opengsd/gsd-core@latest --claude --global
+curl -fsSL https://raw.githubusercontent.com/gunawanwilljkt/eval-gsd/main/install.sh | bash -s -- /path/to/your-project
 ```
 
-This installs **v1.2.0**. Update any time from inside Claude Code with `/gsd-update`, or just
-re-run the command above. GSD also targets other AI runtimes — swap `--claude` for the
-matching flag (e.g. `--codex`, `--gemini`).
+**Or clone and run the installer:**
+
+```bash
+git clone https://github.com/gunawanwilljkt/eval-gsd.git
+cd eval-gsd
+./install.sh /path/to/your-project   # into a project
+./install.sh --global                # or for every project (~/.claude)
+```
+
+**Or just copy it by hand** (no script):
+
+```bash
+git clone https://github.com/gunawanwilljkt/eval-gsd.git
+cp -R eval-gsd/.claude/. /path/to/your-project/.claude/
+```
+
+This installs **v1.2.0** — the exact version in this repo. The installer copies the GSD command
+set into `<target>/.claude/` and skips `settings.local.json` (machine-specific hook paths);
+enable hooks by copying that file and fixing its `node` path. To update, `git pull` in your
+clone and re-run `./install.sh`.
 
 ## Getting started
 

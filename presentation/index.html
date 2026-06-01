@@ -303,17 +303,22 @@ footer{border-top:1px solid var(--border);padding:40px 0;color:var(--faint);font
   <div class="wrap">
     <div class="kick">Install</div>
     <h2>Up and running in one command</h2>
-    <p class="lead">You need <a href="https://nodejs.org" style="color:var(--accent)">Node.js</a>
-    (for <span class="mono">npx</span>) and <a href="https://claude.com/claude-code" style="color:var(--accent)">Claude&nbsp;Code</a>.
-    GSD installs as <span class="mono">/gsd-*</span> slash commands — into one project, or globally for all of them.</p>
+    <p class="lead">GSD <b>is</b> the <span class="mono">.claude/</span> folder in this repo. You need
+    <a href="https://git-scm.com" style="color:var(--accent)">git</a>,
+    <a href="https://nodejs.org" style="color:var(--accent)">Node.js</a>, and
+    <a href="https://claude.com/claude-code" style="color:var(--accent)">Claude&nbsp;Code</a> —
+    no npm or package manager. Clone it, then drop it into your project.</p>
     <div class="install-grid">
       <div class="term">
-        <div class="bar"><i></i><i></i><i></i><span>terminal — install</span></div>
-<pre><span class="c"># into the current project (recommended)</span>
-npx -y <span class="p">@opengsd/gsd-core</span>@latest <span class="k">--claude --local</span>
+        <div class="bar"><i></i><i></i><i></i><span>terminal — install from this repo</span></div>
+<pre><span class="c"># one line — installs into your project</span>
+curl -fsSL <span class="p">https://raw.githubusercontent.com/gunawanwilljkt/eval-gsd/main/install.sh</span> \
+  | bash -s -- <span class="k">./my-project</span>
 
-<span class="c"># or globally, for every project</span>
-npx -y <span class="p">@opengsd/gsd-core</span>@latest <span class="k">--claude --global</span></pre>
+<span class="c"># …or clone and run the installer</span>
+git clone <span class="p">https://github.com/gunawanwilljkt/eval-gsd.git</span>
+cd eval-gsd
+./install.sh <span class="k">./my-project</span>     <span class="c"># or --global</span></pre>
       </div>
       <div>
         <h3 style="font-size:18px;font-weight:700;margin-bottom:4px">Then, inside Claude Code</h3>
@@ -323,9 +328,9 @@ npx -y <span class="p">@opengsd/gsd-core</span>@latest <span class="k">--claude 
           <li><span class="m"></span><span><b class="mono">/gsd-progress</b> <span class="d">— lost? it always knows what's next</span></span></li>
           <li><span class="m"></span><span><b class="mono">/gsd-help</b> <span class="d">— all 67 commands</span></span></li>
         </ul>
-        <p class="note">Installs <b>v1.2.0</b>. Update any time with <span class="mono">/gsd-update</span>,
-        or re-run the command. Other runtimes? Swap <span class="mono">--claude</span> for
-        <span class="mono">--codex</span>, <span class="mono">--gemini</span>, and more.</p>
+        <p class="note">Installs <b>v1.2.0</b> — the version in this repo. The installer copies the
+        command set into <span class="mono">.claude/</span> and skips machine-specific hook settings.
+        Update later with <span class="mono">git pull &amp;&amp; ./install.sh</span>.</p>
       </div>
     </div>
   </div>
