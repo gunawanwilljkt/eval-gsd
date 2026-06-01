@@ -8,6 +8,43 @@ eval layer only switches on when you opt in (author an eval contract / set a con
 > executed and verified by specialized agents — and it can't pass until its pre-committed
 > evals go green.
 
+## Install
+
+GSD installs as Claude Code `/gsd-*` slash commands. You need
+[Node.js](https://nodejs.org) (for `npx`) and [Claude Code](https://claude.com/claude-code).
+
+```bash
+# Into the current project (recommended) — adds the .claude/ commands here
+npx -y @opengsd/gsd-core@latest --claude --local
+
+# Or install once for every project on your machine
+npx -y @opengsd/gsd-core@latest --claude --global
+```
+
+This installs **v1.2.0**. Update any time from inside Claude Code with `/gsd-update`, or just
+re-run the command above. GSD also targets other AI runtimes — swap `--claude` for the
+matching flag (e.g. `--codex`, `--gemini`).
+
+## Getting started
+
+Open Claude Code in your project and drive the loop with slash commands:
+
+```text
+/gsd-new-project        # scope it: questions -> requirements -> roadmap
+/gsd-discuss-phase 1    # lock the decisions for phase 1
+/gsd-plan-phase 1       # planner <-> checker -> executable tasks
+/gsd-execute-phase 1    # parallel waves + hard gates + verify
+/gsd-ship 1 --review    # open a PR, with a code review
+```
+
+- **New here?** `/gsd-help` lists all 67 commands.
+- **Lost mid-project?** `/gsd-progress` reads your state and tells you exactly what's next.
+- **Want it hands-free?** `/gsd-autonomous` runs every remaining phase, pausing only for a
+  blocked gate or a real decision.
+
+> Tip: the [`presentation/`](presentation/) deck walks the whole loop end to end, plus two
+> complete example builds (a SaaS app and a payment gateway).
+
 ## What's in here
 
 | Path | What it is |
